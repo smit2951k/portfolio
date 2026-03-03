@@ -3144,7 +3144,7 @@
         };
 
         try {
-          const res = await fetch('http://localhost:5000/api/contact', {
+          const res = await fetch('https://portfolio-api-fnxk.onrender.com/api/contact', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -3171,7 +3171,7 @@
 
     /* ── ANALYTICS TRACKING ── */
     document.addEventListener('DOMContentLoaded', () => {
-      fetch('http://localhost:5000/api/analytics/track', {
+      fetch('https://portfolio-api-fnxk.onrender.com/api/analytics/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ page: window.location.pathname })
@@ -3265,7 +3265,7 @@
             if (!fullTranscript) return;
             console.log('Sending transcript to backend...');
             try {
-              await fetch('http://localhost:5000/api/vapi/transcript', {
+              await fetch('https://portfolio-api-fnxk.onrender.com/api/vapi/transcript', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ transcript: fullTranscript })
