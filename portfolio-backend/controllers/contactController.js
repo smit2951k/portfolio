@@ -13,14 +13,15 @@ exports.submitContactForm = async (req, res, next) => {
         const { name, email, subject, budget, timeline, message } = req.body;
 
         // 2. Save submission to Supabase
-        const { data: contact, error } = await supabase.from('contacts').insert([{
-            name, email, subject, budget, timeline, message
-        }]).select().single();
-
-        if (error) {
-            console.error('Supabase Error:', error);
-            // Optionally we still send email even if DB fails, or throw. We'll throw.
-            throw new Error(error.message);
+        let contact = null;
+        try {
+            const result = await supabase.from('contacts').insert([{
+                name, email, subject, budget, timeline, message
+            }]).select().single();
+            contact = result.data;
+            if (result.error) console.error('Supabase Error:', result.error.message);
+        } catch (dbError) {
+            console.error('Supabase fetch failed (continuing to email):', dbError.message);
         }
 
         // 3. Setup Nodemailer
