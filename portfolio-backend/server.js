@@ -31,8 +31,8 @@ app.use(trackVisit);
 // Rate limiting specifically for the contact form
 const contactLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour window
-    max: 5, // Limit each IP to 5 contact requests per window
-    message: 'Too many requests from this IP, please try again after an hour',
+    max: 50, // Limit each IP to 50 contact requests per window
+    message: { success: false, error: 'Too many requests from this IP, please try again after an hour' },
     standardHeaders: true,
     legacyHeaders: false,
 });
