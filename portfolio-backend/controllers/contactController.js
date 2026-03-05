@@ -1,5 +1,5 @@
 const supabase = require('../config/supabase');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const { validationResult } = require('express-validator');
 
 exports.submitContactForm = async (req, res, next) => {
@@ -31,15 +31,22 @@ exports.submitContactForm = async (req, res, next) => {
                 console.error('Supabase fetch failed:', dbError.message);
             }
 
-            // Setup Resend
-            const resend = new Resend(process.env.RESEND_API_KEY);
+            // Setup Nodemailer
+            const transporter = nodemailer.createTransport({
+                service: process.env.EMAIL_SERVICE || 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
 
             // Send Email
             try {
-                const { data, error } = await resend.emails.send({
-                    from: 'Portfolio Contact <onboarding@resend.dev>',
-                    to: 'smit81447@gmail.com',
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: process.env.EMAIL_USER || 'smit81447@gmail.com', // fallback to your email
                     subject: `Portfolio Contact: ${subject}`,
+                    replyTo: email,
                     html: `
                         <h3>New Contact Request</h3>
                         <p><strong>Name:</strong> ${name}</p>
@@ -50,15 +57,11 @@ exports.submitContactForm = async (req, res, next) => {
                         <hr />
                         <p><strong>Message:</strong></p>
                         <p>${message}</p>
-                    `,
-                    reply_to: email
-                });
+                    `
+                };
 
-                if (error) {
-                    console.error('Email error:', error);
-                } else {
-                    console.log('Email sent successfully!');
-                }
+                const info = await transporter.sendMail(mailOptions);
+                console.log('Email sent successfully:', info.response);
             } catch (emailError) {
                 console.error('Email failed:', emailError.message);
             }
