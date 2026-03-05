@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const sendCallTranscript = async (req, res) => {
     const { transcript } = req.body;
@@ -8,25 +8,20 @@ const sendCallTranscript = async (req, res) => {
     }
 
     try {
-        const transporter = nodemailer.createTransport({
-            service: process.env.EMAIL_SERVICE || 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-            connectionTimeout: 5000,
-            greetingTimeout: 5000,
-            socketTimeout: 5000
-        });
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER, // Sending to yourself
+        const { data, error } = await resend.emails.send({
+            from: 'AI Voice Assistant <onboarding@resend.dev>',
+            to: 'smit81447@gmail.com',
             subject: 'New AI Voice Assistant Call Transcript',
             text: `A user just finished a call with your AI Voice Assistant.\n\nCONVERSATION TRANSCRIPT:\n--------------------------\n${transcript}\n--------------------------`,
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
+        if (error) {
+            console.error('Email error:', error);
+            return res.status(500).json({ error: 'Failed to send transcript email' });
+        }
+
         console.log('Call transcript emailed successfully');
         res.status(200).json({ message: 'Transcript sent to email' });
     } catch (error) {
